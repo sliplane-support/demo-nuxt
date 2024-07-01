@@ -1,10 +1,20 @@
-FROM node:20.9.0
+FROM node:20.9.0-alpine AS builder
 
-COPY . .
+WORKDIR /sliplane
+
+COPY package.json package-lock.json ./
 
 RUN npm ci
 
+COPY . .
+
 RUN npm run build
+
+FROM node:20.9.0-alpine AS runner
+
+WORKDIR /sliplane
+
+COPY --from=builder /sliplane/.output ./.output
 
 EXPOSE 3000
 
